@@ -70,7 +70,7 @@ public class Main extends HttpServlet {
     } else if (req.getRequestURI().endsWith("/fixie")) {
       showFixie(req,resp);
     } else if (req.getRequestURI().endsWith("/quotaguard")) {
-      showFixie(req,resp);
+      showQuotaGuard(req,resp);
     } else {
       resp.getWriter().print("<p><a href='/proximo'>Proximo</a></p>");
       resp.getWriter().print("<p><a href='/fixie'>Fixie</a></p>");
@@ -80,6 +80,15 @@ public class Main extends HttpServlet {
 
   private void showProximo(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+    // This could also go in app init
+    URL proximo = new URL(System.getenv("PROXIMO_URL"));
+    String userInfo = proximo.getUserInfo();
+    String user = userInfo.substring(0, userInfo.indexOf(':'));
+    String password = userInfo.substring(userInfo.indexOf(':') + 1);
+
+    System.setProperty("socksProxyHost", proximo.getHost());
+    Authenticator.setDefault(new ProxyAuthenticator(user, password));
+
     String urlStr = "http://httpbin.org/ip";
 
     CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -87,7 +96,31 @@ public class Main extends HttpServlet {
 
     CloseableHttpResponse response = httpClient.execute(request);
     try {
-      resp.getWriter().print("Hello from Java! " + handleResponse(response));
+      resp.getWriter().print("Your IP is: " + handleResponse(response));
+    } catch (Exception e) {
+      resp.getWriter().print(e.getMessage());
+    }
+  }
+
+  private void showQuotaGuard(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    // This could also go in app init
+    URL proximo = new URL(System.getenv("QUOTAGUARDSTATIC_URL"));
+    String userInfo = proximo.getUserInfo();
+    String user = userInfo.substring(0, userInfo.indexOf(':'));
+    String password = userInfo.substring(userInfo.indexOf(':') + 1);
+
+    System.setProperty("socksProxyHost", proximo.getHost());
+    Authenticator.setDefault(new ProxyAuthenticator(user, password));
+
+    String urlStr = "http://httpbin.org/ip";
+
+    CloseableHttpClient httpClient = HttpClients.createDefault();
+    HttpGet request = new HttpGet(urlStr);
+
+    CloseableHttpResponse response = httpClient.execute(request);
+    try {
+      resp.getWriter().print("Your IP is: " + handleResponse(response));
     } catch (Exception e) {
       resp.getWriter().print(e.getMessage());
     }
@@ -95,20 +128,17 @@ public class Main extends HttpServlet {
 
   private void showFixie(HttpServletRequest request, HttpServletResponse resp)
       throws ServletException, IOException {
-
-    URL proximo = new URL(System.getenv("FIXIE_URL"));
+    URL proxyUrl = new URL(System.getenv("FIXIE_URL"));
     String userInfo = proximo.getUserInfo();
     String user = userInfo.substring(0, userInfo.indexOf(':'));
     String password = userInfo.substring(userInfo.indexOf(':') + 1);
 
     DefaultHttpClient httpclient = new DefaultHttpClient();
     try {
-      // HttpHost proxy = new HttpHost(System.getenv("FIXIE_URL"), 80, "http");
-
       httpclient.getCredentialsProvider().setCredentials(
-            new AuthScope(proximo.getHost(), 80),
+            new AuthScope(proxyUrl.getHost(), proxyUrl.getPort()),
             new UsernamePasswordCredentials(user, password));
-      HttpHost proxy = new HttpHost(proximo.getHost(), 80);
+      HttpHost proxy = new HttpHost(proxyUrl.getHost(), proxyUrl.getPort());
       httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
       String encodedAuth = new BASE64Encoder().encode(userInfo.getBytes());
 
@@ -130,16 +160,14 @@ public class Main extends HttpServlet {
       }
       System.out.println("----------------------------------------");
 
-      if (entity != null) {
-          System.out.println(EntityUtils.toString(entity));
-      }
+      resp.getWriter().print("Your IP is: ");
+      resp.getWriter().print(EntityUtils.toString(entity));
     } finally {
         // When HttpClient instance is no longer needed,
         // shut down the connection manager to ensure
         // immediate deallocation of all system resources
         httpclient.getConnectionManager().shutdown();
     }
-    resp.getWriter().print("Hello from Java! ");
   }
 
   private static String handleResponse(CloseableHttpResponse response) throws IOException {
@@ -168,25 +196,6 @@ public class Main extends HttpServlet {
   }
 
   public static void main(String[] args) throws Exception{
-    final Thread mainThread = Thread.currentThread();
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-        System.out.println("Goodbye world");
-        try {
-          // mainThread.join();
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    });
-
-    // URL proximo = new URL(System.getenv("FIXIE_URL"));
-    // String userInfo = proximo.getUserInfo();
-    // String user = userInfo.substring(0, userInfo.indexOf(':'));
-    // String password = userInfo.substring(userInfo.indexOf(':') + 1);
-    // System.setProperty("socksProxyHost", proximo.getHost());
-    // Authenticator.setDefault(new ProxyAuthenticator(user, password));
-
     Server server = new Server(Integer.valueOf(System.getenv("PORT")));
     ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
     context.setContextPath("/");
