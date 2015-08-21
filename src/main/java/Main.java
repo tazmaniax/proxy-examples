@@ -60,8 +60,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import sun.misc.BASE64Encoder;
 
-import com.heroku.sdk.jdbc.DatabaseUrl;
-
 public class Main extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
