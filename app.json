@@ -1,0 +1,16 @@
+{
+  "name": "Java Proxy Examples",
+  "description": "This app demonstrates how to use each of the proxy add-ons.",
+  "keywords": [
+    "java",
+    "proxy"
+  ],
+  "website": "https://github.com/kissaten/proxy-examples",
+  "repository": "https://github.com/kissaten/proxy-examples",
+  "success_url": "/",
+  "addons": [
+    "fixie",
+    "quotaguardstatic:starter",
+    "proximo"
+  ]
+}
