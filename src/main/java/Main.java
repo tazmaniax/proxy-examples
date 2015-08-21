@@ -112,7 +112,7 @@ public class Main extends HttpServlet {
       httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
       String encodedAuth = new BASE64Encoder().encode(userInfo.getBytes());
 
-      HttpHost target = new HttpHost(proximo.getHost(), 80, "http");
+      HttpHost target = new HttpHost("httpbin.org", 80, "http");
       HttpGet req = new HttpGet("/ip");
       req.setHeader("Host", "httpbin.org");
       req.setHeader("Proxy-Authorization", "Basic " + encodedAuth);
