@@ -72,12 +72,12 @@ public class Main extends HttpServlet {
   private void showQuotaGuard(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     // This could also go in app init
-    URL proximo = new URL(System.getenv("QUOTAGUARDSTATIC_URL"));
-    String userInfo = proximo.getUserInfo();
+    URL proxyUrl = new URL(System.getenv("QUOTAGUARDSTATIC_URL"));
+    String userInfo = proxyUrl.getUserInfo();
     String user = userInfo.substring(0, userInfo.indexOf(':'));
     String password = userInfo.substring(userInfo.indexOf(':') + 1);
 
-    System.setProperty("socksProxyHost", proximo.getHost());
+    System.setProperty("socksProxyHost", proxyUrl.getHost());
     Authenticator.setDefault(new ProxyAuthenticator(user, password));
 
     String urlStr = "http://httpbin.org/ip";
