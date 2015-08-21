@@ -50,7 +50,10 @@ public class Main extends HttpServlet {
       String userInfo = proximo.getUserInfo();
       String user = userInfo.substring(0, userInfo.indexOf(':'));
       String password = userInfo.substring(userInfo.indexOf(':') + 1);
-      
+
+    System.setProperty("socksProxyHost", proximo.getHost());
+    Authenticator.setDefault(new ProxyAuthenticator(user, password));
+
     String urlStr = "http://httpbin.org/ip";
 
     CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -127,6 +130,8 @@ public class Main extends HttpServlet {
     String userInfo = proximo.getUserInfo();
     String user = userInfo.substring(0, userInfo.indexOf(':'));
     String password = userInfo.substring(userInfo.indexOf(':') + 1);
+    System.setProperty("socksProxyHost", proximo.getHost());
+    Authenticator.setDefault(new ProxyAuthenticator(user, password));
 
     Server server = new Server(Integer.valueOf(System.getenv("PORT")));
     ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
