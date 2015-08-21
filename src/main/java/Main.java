@@ -67,16 +67,20 @@ public class Main extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
-    if (req.getRequestURI().endsWith("/db")) {
-      showDatabase(req,resp);
-    } else if (req.getRequestURI().endsWith("/http")) {
-      showHttp(req,resp);
+    if (req.getRequestURI().endsWith("/proximo")) {
+      showProximo(req,resp);
+    } else if (req.getRequestURI().endsWith("/fixie")) {
+      showFixie(req,resp);
+    } else if (req.getRequestURI().endsWith("/quotaguard")) {
+      showFixie(req,resp);
     } else {
-      showHome(req,resp);
+      resp.getWriter().print("<p><a href='/proximo'>Proximo</a></p>");
+      resp.getWriter().print("<p><a href='/fixie'>Fixie</a></p>");
+      resp.getWriter().print("<p><a href='/quotaguard'>QuotaGuard</a></p>");
     }
   }
 
-  private void showHome(HttpServletRequest req, HttpServletResponse resp)
+  private void showProximo(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     String urlStr = "http://httpbin.org/ip";
 
@@ -91,7 +95,7 @@ public class Main extends HttpServlet {
     }
   }
 
-  private void showHttp(HttpServletRequest request, HttpServletResponse resp)
+  private void showFixie(HttpServletRequest request, HttpServletResponse resp)
       throws ServletException, IOException {
 
     URL proximo = new URL(System.getenv("FIXIE_URL"));
@@ -110,8 +114,9 @@ public class Main extends HttpServlet {
       httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
       String encodedAuth = new BASE64Encoder().encode((":" + userInfo).getBytes());
 
-      HttpHost target = new HttpHost("httpbin.org", 80, "http");
+      HttpHost target = new HttpHost(proximo.getHost(), 80, "http");
       HttpGet req = new HttpGet("/ip");
+      req.setHeader("Host", "httpbin.org");
       req.setHeader("Proxy-Authorization", "Basic " + encodedAuth);
 
       System.out.println("executing request to " + target + " via "
