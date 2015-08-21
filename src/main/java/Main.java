@@ -46,13 +46,13 @@ public class Main extends HttpServlet {
   private void showHome(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
 
-      URL proximo = new URL(System.getenv("PROXIMO_URL"));
-      String userInfo = proximo.getUserInfo();
-      String user = userInfo.substring(0, userInfo.indexOf(':'));
-      String password = userInfo.substring(userInfo.indexOf(':') + 1);
-
-    System.setProperty("socksProxyHost", proximo.getHost());
-    Authenticator.setDefault(new ProxyAuthenticator(user, password));
+    //   URL proximo = new URL(System.getenv("PROXIMO_URL"));
+    //   String userInfo = proximo.getUserInfo();
+    //   String user = userInfo.substring(0, userInfo.indexOf(':'));
+    //   String password = userInfo.substring(userInfo.indexOf(':') + 1);
+    //
+    // System.setProperty("socksProxyHost", proximo.getHost());
+    // Authenticator.setDefault(new ProxyAuthenticator(user, password));
 
     String urlStr = "http://httpbin.org/ip";
 
@@ -142,7 +142,7 @@ public class Main extends HttpServlet {
     server.join();
   }
 
-  private class ProxyAuthenticator extends Authenticator {
+  private static class ProxyAuthenticator extends Authenticator {
     private final PasswordAuthentication passwordAuthentication;
 
     private ProxyAuthenticator(String user, String password) {
