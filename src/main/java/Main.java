@@ -29,6 +29,33 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.Properties;
+
 import com.heroku.sdk.jdbc.DatabaseUrl;
 
 public class Main extends HttpServlet {
@@ -38,6 +65,8 @@ public class Main extends HttpServlet {
 
     if (req.getRequestURI().endsWith("/db")) {
       showDatabase(req,resp);
+    } else if (req.getRequestURI().endsWith("/http")) {
+      showHttp(req,resp);
     } else {
       showHome(req,resp);
     }
@@ -56,6 +85,42 @@ public class Main extends HttpServlet {
     } catch (Exception e) {
       resp.getWriter().print(e.getMessage());
     }
+  }
+
+  private void showHttp(HttpServletRequest request, HttpServletResponse resp)
+      throws ServletException, IOException {
+    HttpHost proxy = new HttpHost(System.getenv("FIXIE_URL"), 80, "http");
+    DefaultHttpClient httpclient = new DefaultHttpClient();
+    try {
+      httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
+              proxy);
+
+      HttpHost target = new HttpHost("httpbin.org", 80, "http");
+      HttpGet req = new HttpGet("/ip");
+
+      System.out.println("executing request to " + target + " via "
+              + proxy);
+      HttpResponse rsp = httpclient.execute(target, req);
+      HttpEntity entity = rsp.getEntity();
+
+      System.out.println("----------------------------------------");
+      System.out.println(rsp.getStatusLine());
+      Header[] headers = rsp.getAllHeaders();
+      for (int i = 0; i < headers.length; i++) {
+          System.out.println(headers[i]);
+      }
+      System.out.println("----------------------------------------");
+
+      if (entity != null) {
+          System.out.println(EntityUtils.toString(entity));
+      }
+    } finally {
+        // When HttpClient instance is no longer needed,
+        // shut down the connection manager to ensure
+        // immediate deallocation of all system resources
+        httpclient.getConnectionManager().shutdown();
+    }
+    resp.getWriter().print("Hello from Java! ");
   }
 
   private void showDatabase(HttpServletRequest req, HttpServletResponse resp)
@@ -117,12 +182,12 @@ public class Main extends HttpServlet {
       }
     });
 
-    URL proximo = new URL(System.getenv("FIXIE_URL"));
-    String userInfo = proximo.getUserInfo();
-    String user = userInfo.substring(0, userInfo.indexOf(':'));
-    String password = userInfo.substring(userInfo.indexOf(':') + 1);
-    System.setProperty("socksProxyHost", proximo.getHost());
-    Authenticator.setDefault(new ProxyAuthenticator(user, password));
+    // URL proximo = new URL(System.getenv("FIXIE_URL"));
+    // String userInfo = proximo.getUserInfo();
+    // String user = userInfo.substring(0, userInfo.indexOf(':'));
+    // String password = userInfo.substring(userInfo.indexOf(':') + 1);
+    // System.setProperty("socksProxyHost", proximo.getHost());
+    // Authenticator.setDefault(new ProxyAuthenticator(user, password));
 
     Server server = new Server(Integer.valueOf(System.getenv("PORT")));
     ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
