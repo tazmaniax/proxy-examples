@@ -58,6 +58,7 @@ import java.util.Properties;
 
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import sun.misc.BASE64Encoder;
 
 import com.heroku.sdk.jdbc.DatabaseUrl;
 
@@ -101,17 +102,17 @@ public class Main extends HttpServlet {
     DefaultHttpClient httpclient = new DefaultHttpClient();
     try {
       // HttpHost proxy = new HttpHost(System.getenv("FIXIE_URL"), 80, "http");
-      // httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
-      //         proxy);
+
       httpclient.getCredentialsProvider().setCredentials(
             new AuthScope(proximo.getHost(), 80),
             new UsernamePasswordCredentials(user, password));
       HttpHost proxy = new HttpHost(proximo.getHost(), 80);
-
       httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+      String encodedAuth = new BASE64Encoder().encode((":" + userInfo).getBytes());
 
       HttpHost target = new HttpHost("httpbin.org", 80, "http");
       HttpGet req = new HttpGet("/ip");
+      req.setHeader("Proxy-Authorization", "Basic " + encodedAuth);
 
       System.out.println("executing request to " + target + " via "
               + proxy);
