@@ -56,6 +56,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Properties;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+
 import com.heroku.sdk.jdbc.DatabaseUrl;
 
 public class Main extends HttpServlet {
@@ -89,11 +92,23 @@ public class Main extends HttpServlet {
 
   private void showHttp(HttpServletRequest request, HttpServletResponse resp)
       throws ServletException, IOException {
-    HttpHost proxy = new HttpHost(System.getenv("FIXIE_URL"), 80, "http");
+
+    URL proximo = new URL(System.getenv("FIXIE_URL"));
+    String userInfo = proximo.getUserInfo();
+    String user = userInfo.substring(0, userInfo.indexOf(':'));
+    String password = userInfo.substring(userInfo.indexOf(':') + 1);
+
     DefaultHttpClient httpclient = new DefaultHttpClient();
     try {
-      httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
-              proxy);
+      // HttpHost proxy = new HttpHost(System.getenv("FIXIE_URL"), 80, "http");
+      // httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
+      //         proxy);
+      httpclient.getCredentialsProvider().setCredentials(
+            new AuthScope(proximo.getHost(), 80),
+            new UsernamePasswordCredentials(user, password));
+      HttpHost proxy = new HttpHost(proximo.getHost(), 80);
+
+      httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 
       HttpHost target = new HttpHost("httpbin.org", 80, "http");
       HttpGet req = new HttpGet("/ip");
