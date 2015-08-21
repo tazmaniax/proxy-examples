@@ -117,7 +117,7 @@ public class Main extends HttpServlet {
       }
     });
 
-    URL proximo = new URL(System.getenv("QUOTAGUARDSTATIC_URL"));
+    URL proximo = new URL(System.getenv("FIXIE_URL"));
     String userInfo = proximo.getUserInfo();
     String user = userInfo.substring(0, userInfo.indexOf(':'));
     String password = userInfo.substring(userInfo.indexOf(':') + 1);
