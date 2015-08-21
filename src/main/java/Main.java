@@ -112,7 +112,7 @@ public class Main extends HttpServlet {
             new UsernamePasswordCredentials(user, password));
       HttpHost proxy = new HttpHost(proximo.getHost(), 80);
       httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-      String encodedAuth = new BASE64Encoder().encode((":" + userInfo).getBytes());
+      String encodedAuth = new BASE64Encoder().encode((userInfo).getBytes());
 
       HttpHost target = new HttpHost(proximo.getHost(), 80, "http");
       HttpGet req = new HttpGet("/ip");
@@ -142,27 +142,6 @@ public class Main extends HttpServlet {
         httpclient.getConnectionManager().shutdown();
     }
     resp.getWriter().print("Hello from Java! ");
-  }
-
-  private void showDatabase(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    try {
-      Connection connection = DatabaseUrl.extract().getConnection();
-
-      Statement stmt = connection.createStatement();
-      stmt.executeUpdate("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)");
-      stmt.executeUpdate("INSERT INTO ticks VALUES (now())");
-      ResultSet rs = stmt.executeQuery("SELECT tick FROM ticks");
-
-      String out = "Hello!\n";
-      while (rs.next()) {
-          out += "Read from DB: " + rs.getTimestamp("tick") + "\n";
-      }
-
-      resp.getWriter().print(out);
-    } catch (Exception e) {
-      resp.getWriter().print("There was an error: " + e.getMessage());
-    }
   }
 
   private static String handleResponse(CloseableHttpResponse response) throws IOException {
