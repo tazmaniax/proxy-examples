@@ -96,7 +96,7 @@ public class Main extends HttpServlet {
   private void showFixie(HttpServletRequest request, HttpServletResponse resp)
       throws ServletException, IOException {
     URL proxyUrl = new URL(System.getenv("FIXIE_URL"));
-    String userInfo = proximo.getUserInfo();
+    String userInfo = proxyUrl.getUserInfo();
     String user = userInfo.substring(0, userInfo.indexOf(':'));
     String password = userInfo.substring(userInfo.indexOf(':') + 1);
 
