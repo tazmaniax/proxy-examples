@@ -112,7 +112,7 @@ public class Main extends HttpServlet {
             new UsernamePasswordCredentials(user, password));
       HttpHost proxy = new HttpHost(proximo.getHost(), 80);
       httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-      String encodedAuth = new BASE64Encoder().encode((userInfo).getBytes());
+      String encodedAuth = new BASE64Encoder().encode(userInfo).getBytes());
 
       HttpHost target = new HttpHost(proximo.getHost(), 80, "http");
       HttpGet req = new HttpGet("/ip");
