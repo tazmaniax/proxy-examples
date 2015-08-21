@@ -45,6 +45,12 @@ public class Main extends HttpServlet {
 
   private void showHome(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+
+      URL proximo = new URL(System.getenv("PROXIMO_URL"));
+      String userInfo = proximo.getUserInfo();
+      String user = userInfo.substring(0, userInfo.indexOf(':'));
+      String password = userInfo.substring(userInfo.indexOf(':') + 1);
+      
     String urlStr = "http://httpbin.org/ip";
 
     CloseableHttpClient httpClient = HttpClients.createDefault();
