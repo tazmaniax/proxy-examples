@@ -198,7 +198,7 @@ public class Main extends HttpServlet {
   
 	
 	private static GeocodingResult geocode(String searchString, String countryCode) {
-		GeoApiContext context = new GeoApiContext().setApiKey(System.getenv("GOOGLE_BROWSER_API_KEY"));
+		GeoApiContext context = new GeoApiContext().setApiKey(System.getenv("GOOGLE_SERVER_API_KEY"));
 		
 		// Set proxy;
 //		context.setProxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
