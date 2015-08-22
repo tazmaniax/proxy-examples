@@ -13,6 +13,12 @@ import org.apache.http.util.EntityUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.GeocodingApi.ComponentFilter;
+import com.google.maps.model.GeocodingResult;
+
 import sun.misc.BASE64Encoder;
 
 import javax.servlet.ServletException;
@@ -184,4 +190,32 @@ public class Main extends HttpServlet {
       return passwordAuthentication;
     }
   }
+  
+	
+	private static GeocodingResult geocode(String searchString, String countryCode) {
+		GeoApiContext context = new GeoApiContext().setApiKey(System.getenv("GOOGLE_BROWSER_API_KEY"));
+		
+		// Set proxy;
+//		context.setProxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port)));
+
+		String ccTLDCountryCode = countryCode.equalsIgnoreCase("GB") ? "uk" : countryCode.toLowerCase();
+		
+		try {
+			// e.g. for US "1600 Amphitheatre Parkway Mountain View, CA 94043"
+			// https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCuYNqhbdxzM8Ffhr6FtD3lqcWhoCSHdJo&components=country%3AGB&address=NW6+6RG&region=uk
+			GeocodingResult[] results = GeocodingApi
+					.geocode(context, searchString.toString())
+					.region(ccTLDCountryCode)
+					.components(ComponentFilter.country(countryCode))
+					.await();
+			
+			if (results.length > 0) {
+				return results[0];
+			}
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+		}
+		
+		return null;
+	}
 }
