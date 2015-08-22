@@ -69,7 +69,8 @@ public class Main extends HttpServlet {
 
     CloseableHttpResponse response = httpClient.execute(request);
     try {
-      resp.getWriter().print("Your IP is: " + handleResponse(response));
+      GeocodingResult geocodeResult = geocode("WC1B 3DG", "GB");
+      resp.getWriter().print("Your IP is: " + handleResponse(response) + ", GeocodeResult: " + (geocodeResult != null ? geocodeResult.formattedAddress : "Not found"));
     } catch (Exception e) {
       resp.getWriter().print(e.getMessage());
     }
@@ -93,7 +94,8 @@ public class Main extends HttpServlet {
 
     CloseableHttpResponse response = httpClient.execute(request);
     try {
-      resp.getWriter().print("Your IP is: " + handleResponse(response));
+      GeocodingResult geocodeResult = geocode("WC1B 3DG", "GB");
+      resp.getWriter().print("Your IP is: " + handleResponse(response) + ", GeocodeResult: " + (geocodeResult != null ? geocodeResult.formattedAddress : "Not found"));
     } catch (Exception e) {
       resp.getWriter().print(e.getMessage());
     }
@@ -135,6 +137,9 @@ public class Main extends HttpServlet {
 
       resp.getWriter().print("Your IP is: ");
       resp.getWriter().print(EntityUtils.toString(entity));
+      
+      GeocodingResult geocodeResult = geocode("WC1B 3DG", "GB");
+      resp.getWriter().print(", GeocodeResult: " + (geocodeResult != null ? geocodeResult.formattedAddress : "Not found"));
     } finally {
         // When HttpClient instance is no longer needed,
         // shut down the connection manager to ensure
